@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 import { useMutation, useQuery } from '@apollo/client'
-import { ADD_MOVIE_MUTATION, GET_DIRECTORS_QUERY } from '../queries'
+import { ADD_MOVIE_MUTATION, GET_DIRECTORS_QUERY, GET_MOVIES_QUERY } from '../queries'
 
 export const AddMovies = () => {
     const { data, error, loading } = useQuery(GET_DIRECTORS_QUERY)
@@ -26,7 +26,7 @@ export const AddMovies = () => {
     const handleSubmit = e => {
         e.preventDefault()
 
-        addMovie({ variables: { name, genre, directorId } })
+        addMovie({ variables: { name, genre, directorId }, refetchQueries: [{query: GET_MOVIES_QUERY}] })
     }
 
     return (
