@@ -1,21 +1,8 @@
 import { GraphQLID, GraphQLInt, GraphQLList, GraphQLObjectType, GraphQLSchema, GraphQLString } from 'graphql'
 import _ from 'lodash'
 
-const movies = [
-    {name: 'Star Wars', genre: 'sci-fi', id: '1', directorId: '1'},
-    {name: 'Jurasic Park', genre: 'adventure', id: '2', directorId: '2'},
-    {name: 'The Godfather', genre: 'drama', id: '3', directorId: '3'},
-    {name: 'Terminator 2', genre: 'action-sci-fi', id: '4', directorId: '4'},
-    {name: 'The Empire Strikes Back', genre: 'action-sci-fi', id: '5', directorId: '1'},
-    {name: 'Return of the Jedi', genre: 'sci-fi', id: '6', directorId: '1'},
-]
-
-const directors = [
-    { name: 'George Lucas', age: 60, id: '1' },
-    { name: 'Steven Spielberg', age: 74, id: '2' },
-    { name: 'Francis Ford Coppola', age: 82, id: '3' },
-    { name: 'James Cameron', age: 67, id: '4' },
-]
+import Director from '../models/director.js'
+import Movie from '../models/movie.js'
 
 const MovieType = new GraphQLObjectType({
     name: 'Movie',
@@ -26,7 +13,7 @@ const MovieType = new GraphQLObjectType({
         director: {
             type: DirectorType,
             resolve(parent, _args) {
-                return _.find(directors, {id: parent.directorId})
+                // TODO
             }
         }
     }),
@@ -41,7 +28,7 @@ const DirectorType = new GraphQLObjectType({
         movies: {
             type: new GraphQLList(MovieType),
             resolve(parent, _args) {
-                return _.filter(movies, {directorId: parent.id})
+                // TODO
             }
         }
     }),
@@ -55,13 +42,12 @@ const RootQuery = new GraphQLObjectType({
             args: {id: { type: GraphQLID }},
             resolve(_parent, args) {
                 // TODO: get data from db
-                return _.find(directors, { id: args.id })
             }
         },
         directors: {
             type: new GraphQLList(DirectorType),
             resolve(_parent, _args) {
-                return directors
+                // TODO: get data from db
             }
         },
         movie: {
@@ -69,18 +55,56 @@ const RootQuery = new GraphQLObjectType({
             args: { id: { type: GraphQLID } },
             resolve(_parent, args) {
                 // TODO: get data from db
-                return _.find(movies, { id: args.id })
             },
         },
         movies: {
             type: new GraphQLList(MovieType),
             resolve(_parent, _args) {
-                return movies
+                // TODO: get data from db
             }
         }
     }),
 })
 
+const Mutation = new GraphQLObjectType({
+    name: 'Mutation',
+    fields: {
+        addDirector: {
+            type: DirectorType,
+            args: {
+                age: { type: GraphQLInt },
+                name: { type: GraphQLString },
+            },
+            resolve(parent, args){
+                const director = new Director({
+                    age: args.age,
+                    name: args.name,
+                })
+
+                return director.save()
+            }
+        },
+        addMovie: {
+            type: MovieType,
+            args: {
+                name: { type: GraphQLString },
+                genre: { type: GraphQLString },
+                directorId: { type: GraphQLID },
+            },
+            resolve(parent, args) {
+                const movie = new Movie({
+                    name: args.name,
+                    genre: args.genre,
+                    directorId: args.directorId
+                })
+
+                return movie.save()
+            }
+        }
+    }
+})
+
 export default new GraphQLSchema({
-    query: RootQuery
+    query: RootQuery,
+    mutation: Mutation
 })
