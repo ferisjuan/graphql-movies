@@ -27,3 +27,21 @@ export const GET_MOVIES_QUERY = gql`
         }
     }
 `
+export const GET_MOVIE_QUERY = gql`
+    query ($id: ID!) {
+        movie(id: $id) {
+            id
+            name
+            genre
+            director {
+                id
+                name
+                age
+                movies {
+                    id
+                    name
+                }
+            }
+        }
+    }
+`
